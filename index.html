@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beyond Binary: Sim-to-Real Dexterous Manipulation with Physics-Aware Contact Representation</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']]
+      }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://mpan31415.github.io/">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://hypernerf.github.io">
+            HyperNeRF
+          </a>
+          <a class="navbar-item" href="https://nerfies.github.io">
+            Nerfies
+          </a>
+          <a class="navbar-item" href="https://latentfusion.github.io">
+            LatentFusion
+          </a>
+          <a class="navbar-item" href="https://photoshape.github.io">
+            PhotoShape
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Beyond Binary: Sim-to-Real Dexterous Manipulation with Physics-Aware Contact Representation</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://mpan31415.github.io/">Jiahe Pan</a><sup>1,2</sup>,</span>
+            <span class="author-block">
+              <a href="https://crl.ethz.ch/people/coros/">Stelian Coros</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://people.eecs.berkeley.edu/~malik/">Jitendra Malik</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://toruowo.github.io/">Toru Lin</a><sup>2</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>ETH Zürich,</span>
+            <span class="author-block"><sup>2</sup>UC Berkeley</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://mpan31415.github.io/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://mpan31415.github.io/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="https://mpan31415.github.io/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span> -->
+              <!-- Dataset Link. -->
+              <!-- <span class="link-block">
+                <a href="https://github.com/google/nerfies/releases/tag/0.1"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+              </span> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/teaser.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        Our blind, tactile-enhanced policies achieve successful direct sim-to-real 
+        transfer on dexterous multi-fingered hands in contact-rich manipulation tasks.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<!-- <section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/steve.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/chair-tp.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-shiba">
+          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/shiba.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-fullbody">
+          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/fullbody.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-blueshirt">
+          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blueshirt.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-mask">
+          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/mask.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-coffee">
+          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/coffee.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-toby">
+          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/toby2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+
+
+
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            A primary bottleneck in contact-rich manipulation is the difficulty of collecting real-world data. 
+            Sim-to-real reinforcement learning offers a scalable alternative, but the simulation-reality gap 
+            prevents information-dense modalities like touch from being effectively used. 
+            Existing sim-to-real methods mitigate this gap by simplifying tactile data into low-dimensional 
+            features, sacrificing the richness required for complex manipulation. 
+          </p>
+          <p>
+            In this work, we introduce <b>CoP</b>, a novel tactile representation grounded in physical principles 
+            that preserves dense contact information while maintaining robustness for sim-to-real transfer. 
+            To support this representation, we further propose a sensor calibration scheme based on 
+            differentiable dynamics, enabling the estimation of taxel orientations without requiring 
+            ground-truth force measurements. 
+          </p>
+          <p>
+            We evaluate CoP on two challenging contact-rich manipulation tasks: <i>peg-in-hole insertion</i> and 
+            <i>ball balancing</i>. Results demonstrate that policies conditioned on CoP achieve successful direct 
+            sim-to-real transfer on multi-fingered hands, significantly outperforming both binary and 
+            raw tactile baselines. Moreover, the learned policies implicitly capture underlying physical 
+            properties, such as object mass, as an emergent byproduct of control.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- Animation. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Method</h2>
+
+        <!-- CoP & Hardware. -->
+        <h3 class="title is-4">1. Physics-Grounded Tactile Representation: Center-of-Pressure (CoP)</h3>
+        <div class="content has-text-justified">
+          <p>
+            CoP consists of a single 3-dimensional force vector \({}^\mathcal{S}f_{\mathrm{cop}}\in\mathbb{R}^3\)
+            representing the total force acting on the robot link by the object, and the 3-dimensional 
+            Cartesian coordinates of a single centroidal contact point \({}^\mathcal{S}p_{\mathrm{cop}}\in\mathbb{R}^3\),
+            both expressed in the sensor frame \(\mathcal{S}\).
+          </p>
+        </div>
+        <div class="columns is-centered is-variable is-5">
+          <div class="column has-text-centered" style="flex: 0 0 60%; max-width: 60%;">
+            <img src="./static/images/cop_illustration.jpg"
+                 alt="CoP figure left"
+                 style="max-width: 100%; height: auto;"/>
+            <p><b>Left:</b> CoP quantities expressed in sensor frame \(\mathcal{S}\). 
+               <b>Right:</b> Transformation between each taxel frame \(\mathcal{T}_i\) 
+              and sensor frame \(\mathcal{S}\) for the 
+              <a href="https://xelarobotics.com/products/uscu-alha/">XELA uSkin</a> sensor arrays used in this work.</p>
+          </div>
+          <div class="column has-text-centered" style="flex: 0 0 40%; max-width: 40%;">
+            <img src="./static/images/hardware.jpg"
+                 alt="CoP figure right"
+                 style="max-width: 100%; height: auto;"/>
+            <p>The hardware used in this work is the Allegro hand (16 DOFs) equipped with 
+              <a href="https://xelarobotics.com/products/uscu-alha/">XELA uSkin</a> tactile sensors.</p>
+          </div>
+        </div>
+        <br/>
+        <!--/ CoP & Hardware. -->
+
+        <!-- Taxel-CoP Mapping. -->
+        <h3 class="title is-4">2. Invertible & Differentiable Tactile-CoP Mapping</h3>
+        <div class="content has-text-justified">
+          <p>
+            <b>Sensor surface deformation model:</b> A contact force $f_{\rm{cop}}$ is decomposed into normal $f_n$ and shear $f_s$ components. 
+            We then model the normal $f_{i,n}$ and shear $f_{i,s}$ effective forces on each taxel $i$ under surface deformation, 
+            accounting for changed force direction and decayed magnitude due to internal force distribution. 
+            The effective normal and shear components are combined to obtain the resulting taxel force $f_i$.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video autoplay muted loop playsinline width="100%">
+            <source src="./static/videos/sensor_deformation_model.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Based on the deformation model, the raw taxel forces $f_i$ and the CoP force $f_{\rm_{cop}}$ 
+            can be related via a simple linear mapping, \(f_i = M_i f_{\rm{cop}}\) , 
+            where \(M_i \in\mathbb{R}^{3\times3}\) is the taxel-specific mapping matrix.
+          </p>
+        </div>
+        <br/>
+        <!--/ Taxel-CoP Mapping. -->
+
+        <!-- Calibration. -->
+        <h3 class="title is-4">3. Sensor Calibration via Differentiable Dynamics</h3>
+        <div class="content has-text-justified">
+          <p>
+            We present a novel method to learn the taxel orientations via differentiable dynamics,
+            without requiring any ground-truth force measurements.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video autoplay muted loop playsinline width="100%">
+            <source src="./static/videos/calibration.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div id="calibration-view-toggle" class="buttons is-centered">
+          <button id="focus-data-collection"
+                  class="button is-light"
+                  type="button"
+                  aria-pressed="false">
+            <span class="icon is-small calibration-check is-invisible" aria-hidden="true">
+              <i class="fas fa-check"></i>
+            </span>
+            <span><b>Data Collection</b></span>
+          </button>
+          <button id="focus-taxel-rotation"
+                  class="button is-primary"
+                  type="button"
+                  aria-pressed="true">
+            <span class="icon is-small calibration-check" aria-hidden="true">
+              <i class="fas fa-check"></i>
+            </span>
+            <span><b>Taxel Rotation Learning</b></span>
+          </button>
+        </div>
+
+        <div id="calibration-media-row"
+             class="columns is-centered is-variable is-4"
+             style="--left-col-width: 20%; --right-col-width: 80%;"
+             data-focus="right">
+          <div id="calibration-data-panel" class="column has-text-centered calibration-panel">
+            <video class="calibration-media" autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/data_collection.mp4" type="video/mp4">
+            </video>
+            <!-- <p>Data collection</p> -->
+          </div>
+          <div id="calibration-learning-panel" class="column has-text-centered calibration-panel">
+            <div id="interpolation-image-wrapper" class="calibration-media">
+              Loading...
+            </div>
+            <input class="slider is-fullwidth is-large is-info"
+                   id="interpolation-slider"
+                   step="1" min="0" max="100" value="0" type="range">
+            <p><b>Slide</b> to see intermediate stages of learning (from randomly initialized taxel rotations)</p>
+          </div>
+        </div>
+        
+        <br/>
+        <!--/ Calibration. -->
+
+
+      </div>
+    </div>
+    <!--/ Animation. -->
+
+
+    <!-- Concurrent Work. -->
+    <!-- <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            There's a lot of excellent work that was introduced around the same time as ours.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+          </p>
+          <p>
+            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
+            both use deformation fields to model non-rigid scenes.
+          </p>
+          <p>
+            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+          </p>
+          <p>
+            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+          </p>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="sim-to-real-gallery">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3 has-text-centered">Results Gallery</h2>
+
+        <div id="sim-task-toggle" class="buttons is-centered">
+          <button id="sim-task-peg"
+                  class="button is-primary"
+                  type="button"
+                  aria-pressed="true">
+            <span class="icon is-small sim-task-check" aria-hidden="true">
+              <i class="fas fa-check"></i>
+            </span>
+            <span><b>Peg-in-Hole Insertion</b></span>
+          </button>
+          <button id="sim-task-ball"
+                  class="button is-light"
+                  type="button"
+                  aria-pressed="false">
+            <span class="icon is-small sim-task-check is-invisible" aria-hidden="true">
+              <i class="fas fa-check"></i>
+            </span>
+            <span><b>Ball Balancing</b></span>
+          </button>
+        </div>
+
+        <div id="sim-gallery-peg" class="sim-gallery-task">
+          <h3 class="title is-4">CoP Policy Rollouts</h3>
+          <div class="field is-grouped is-align-items-center mb-4">
+            <label for="peg-shape-select" class="label mb-0 mr-3">Shape:</label>
+            <div class="control">
+              <div class="select is-info">
+                <select id="peg-shape-select">
+                  <option value="circle">circle</option>
+                  <option value="diamond">diamond</option>
+                  <option value="ellipse">ellipse</option>
+                  <option value="hexagon">hexagon</option>
+                  <option value="square">square</option>
+                  <option value="triangle">triangle</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="peg-rollouts-grid" class="sim-video-grid sim-video-grid-2x3"></div>
+
+          <h3 class="title is-4 mt-6">Baseline Comparison</h3>
+          <div class="sim-observation-legend" aria-label="Observation types">
+            <span class="sim-observation-chip sim-observation-chip-binary">binary</span>
+            <span class="sim-observation-chip sim-observation-chip-cop">CoP</span>
+            <span class="sim-observation-chip sim-observation-chip-taxel">taxel</span>
+          </div>
+          <p class="sim-observation-note">The columns are consistent across all baseline comparisons below.</p>
+          <div id="peg-normal" class="sim-video-grid sim-video-grid-2x3"></div>
+
+          <h3 class="title is-4 mt-6">Baseline Comparison: Out-of-Distribution Initialization</h3>
+          <div id="peg-ood-grid" class="sim-video-grid sim-video-grid-2x3"></div>
+
+          <h3 class="title is-4 mt-6">Baseline Comparison: Randomly Masked Taxels</h3>
+          <div id="peg-masked-grid" class="sim-video-grid sim-video-grid-2x3"></div>
+        </div>
+
+        <div id="sim-gallery-ball" class="sim-gallery-task is-hidden">
+          <h3 class="title is-4">CoP Policy Rollouts</h3>
+          <div class="field is-grouped is-align-items-center mb-4">
+            <label for="ball-type-select" class="label mb-0 mr-3">Ball type:</label>
+            <div class="control">
+              <div class="select is-info">
+                <select id="ball-type-select">
+                  <option value="baseball">baseball</option>
+                  <option value="hockey_ball">hockey ball</option>
+                  <option value="moonball">moonball</option>
+                  <option value="tennis_ball">tennis ball</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="ball-rollouts-grid" class="sim-video-grid sim-video-grid-2x2"></div>
+
+          <h3 class="title is-4 mt-6">Baseline Comparisons</h3>
+          <div class="field is-grouped is-align-items-center mb-4">
+            <label for="ball-baseline-type-select" class="label mb-0 mr-3">Ball type:</label>
+            <div class="control">
+              <div class="select is-info">
+                <select id="ball-baseline-type-select">
+                  <option value="baseball">baseball</option>
+                  <option value="hockey_ball">hockey ball</option>
+                  <option value="moonball">moonball</option>
+                  <option value="tennis_ball">tennis ball</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="sim-observation-legend" aria-label="Observation types">
+            <span class="sim-observation-chip sim-observation-chip-binary">binary</span>
+            <span class="sim-observation-chip sim-observation-chip-cop">CoP</span>
+            <span class="sim-observation-chip sim-observation-chip-taxel">taxel</span>
+          </div>
+          <div id="ball-baseline-grid" class="sim-video-grid sim-video-grid-2x3"></div>
+
+          <h3 class="title is-4 mt-6">Ball State Prediction</h3>
+          <div id="ball-state-grid" class="sim-video-grid sim-video-grid-single"></div>
+
+          <h3 class="title is-4 mt-6">Implicit Mass Identification</h3>
+          <div id="ball-mass-grid" class="sim-video-grid sim-video-grid-single"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{pan2026beyond,
+  author    = {Pan, Jiahe and Coros, Stelian and Malik, Jitendra and Lin, Toru},
+  title     = {Beyond Binary: Sim-to-Real Dexterous Manipulation with Physics-Aware Contact Representation},
+  journal   = {arXiv},
+  year      = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://mpan31415.github.io/">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/mpan31415" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This website uses the <a
+              href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> template.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
